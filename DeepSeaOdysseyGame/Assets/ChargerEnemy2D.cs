@@ -6,11 +6,10 @@ public class ChargerEnemy2D : MonoBehaviour
     public enum State { Patrol, WindUp, Charge }
     public State currentState = State.Patrol;
 
-    [Header("Настройки тарана")]
-    [SerializeField] private float chargeSpeed = 9f;
-    [SerializeField] private float windUpTime = 0.7f;    // Задержка перед рывком
-    [SerializeField] private float detectionRadius = 5.5f;
-    [SerializeField] private float cooldownTime = 1.5f;
+    [Header("Данные баланса (ScriptableObject)")]
+    [SerializeField] private EnemyStats stats;
+
+    [Header("Ссылки")]
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     private Transform player;
@@ -26,9 +25,9 @@ public class ChargerEnemy2D : MonoBehaviour
 
     void Update()
     {
-        if (isCharging || player == null) return;
+        if (isCharging || player == null || stats == null) return;
 
-        if (Vector2.Distance(transform.position, player.position) <= detectionRadius)
+        if (Vector2.Distance(transform.position, player.position) <= stats.detectionRadius)
         {
             StartCoroutine(ChargeRoutine());
         }
@@ -38,27 +37,24 @@ public class ChargerEnemy2D : MonoBehaviour
     {
         isCharging = true;
 
-        // 1. Состояние: WindUp (Замирает и желтеет перед атакой)
         currentState = State.WindUp;
         chargeDirection = (player.position - transform.position).normalized;
         if (spriteRenderer != null) spriteRenderer.color = Color.yellow;
-        yield return new WaitForSeconds(windUpTime);
+        yield return new WaitForSeconds(stats.windUpTime);
 
-        // 2. Состояние: Charge (Быстрый рывок по прямой)
         currentState = State.Charge;
         if (spriteRenderer != null) spriteRenderer.color = Color.magenta;
 
         float timer = 0f;
         while (timer < 0.45f)
         {
-            transform.Translate(chargeDirection * chargeSpeed * Time.deltaTime, Space.World);
+            transform.Translate(chargeDirection * stats.moveSpeed * Time.deltaTime, Space.World);
             timer += Time.deltaTime;
             yield return null;
         }
 
-        // 3. Отдых после рывка
         if (spriteRenderer != null) spriteRenderer.color = Color.green;
-        yield return new WaitForSeconds(cooldownTime);
+        yield return new WaitForSeconds(stats.cooldownTime);
         currentState = State.Patrol;
         isCharging = false;
     }
