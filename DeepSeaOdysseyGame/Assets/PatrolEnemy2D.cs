@@ -3,17 +3,16 @@ using UnityEngine;
 public class PatrolEnemy2D : MonoBehaviour
 {
     public enum State { Patrol, Chase, Attack }
-    [Header("Текущее состояние (смотри в игре)")]
     public State currentState = State.Patrol;
 
-    [Header("Настройки врага")]
-    [SerializeField] private Transform[] waypoints; // Точки, между которыми он плавает
-    [SerializeField] private float patrolSpeed = 2f;
-    [SerializeField] private float chaseSpeed = 3.5f;
-    [SerializeField] private float detectionRadius = 5f; // Дальность зрения
-    [SerializeField] private float attackRadius = 1.2f;  // Дистанция удара
-    [SerializeField] private LayerMask playerLayer;      // Слой игрока
-    [SerializeField] private LayerMask wallLayer;        // Слой стен
+    [Header("Данные баланса (ScriptableObject)")]
+    [SerializeField] private EnemyStats stats;
+
+    [Header("Настройки сцены")]
+    [SerializeField] private Transform[] waypoints;
+    [SerializeField] private float attackRadius = 1.2f;
+    [SerializeField] private LayerMask playerLayer;
+    [SerializeField] private LayerMask wallLayer;
 
     private int currentWaypointIndex = 0;
     private Transform player;
@@ -26,6 +25,8 @@ public class PatrolEnemy2D : MonoBehaviour
 
     void Update()
     {
+        if (stats == null) return;
+
         switch (currentState)
         {
             case State.Patrol:
@@ -45,7 +46,7 @@ public class PatrolEnemy2D : MonoBehaviour
     {
         if (waypoints == null || waypoints.Length == 0) return;
         Transform target = waypoints[currentWaypointIndex];
-        transform.position = Vector2.MoveTowards(transform.position, target.position, patrolSpeed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(transform.position, target.position, stats.moveSpeed * Time.deltaTime);
 
         if (Vector2.Distance(transform.position, target.position) < 0.2f)
         {
@@ -58,15 +59,14 @@ public class PatrolEnemy2D : MonoBehaviour
         if (player == null) return;
         float distance = Vector2.Distance(transform.position, player.position);
 
-        if (distance <= detectionRadius)
+        if (distance <= stats.detectionRadius)
         {
             Vector2 direction = (player.position - transform.position).normalized;
-            // Луч зрения: видит игрока, но упирается в стены
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, detectionRadius, playerLayer | wallLayer);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, stats.detectionRadius, playerLayer | wallLayer);
 
             if (hit.collider != null && hit.collider.CompareTag("Player"))
             {
-                currentState = State.Chase; // Увидел игрока — переходим в погоню!
+                currentState = State.Chase;
             }
         }
     }
@@ -74,31 +74,22 @@ public class PatrolEnemy2D : MonoBehaviour
     void ChaseLogic()
     {
         if (player == null) return;
-        transform.position = Vector2.MoveTowards(transform.position, player.position, chaseSpeed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(transform.position, player.position, stats.chaseSpeed * Time.deltaTime);
 
         float distance = Vector2.Distance(transform.position, player.position);
         if (distance <= attackRadius)
         {
             currentState = State.Attack;
         }
-        else if (distance > detectionRadius * 1.4f)
+        else if (distance > stats.detectionRadius * 1.4f)
         {
-            currentState = State.Patrol; // Игрок уплыл далеко — возвращаемся в патруль
+            currentState = State.Patrol;
         }
     }
 
     void AttackLogic()
     {
-        Debug.Log("Patroller: Удар по батискафу!");
+        Debug.Log("Patroller наносит урон: " + stats.damage);
         currentState = State.Patrol;
-    }
-
-    // Рисует круги обзора в окне Scene (для наглядности)
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRadius);
     }
 }
