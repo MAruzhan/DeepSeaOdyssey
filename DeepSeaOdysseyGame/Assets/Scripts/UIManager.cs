@@ -8,29 +8,44 @@ public class UIManager : MonoBehaviour
     public GameObject hudPanel;
     public GameObject pausePanel;
 
-    // Кнопка PLAY: Открывает HUD и запускает игру
+    // Метод Start вызывается автоматически в первую секунду запуска игры
+    void Start()
+    {
+        ShowMainMenu();
+    }
+
+    // Включаем только Главное Меню
+    public void ShowMainMenu()
+    {
+        Time.timeScale = 1f; // Время идет обычным шагом
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(true);  // Показываем Главное Меню
+        if (hudPanel != null) hudPanel.SetActive(false);           // Скрываем HUD
+        if (pausePanel != null) pausePanel.SetActive(false);       // Скрываем Паузу
+    }
+
+    // Кнопка PLAY: Открывает HUD и выключает Главное меню
     public void PlayGame()
     {
         if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
         if (hudPanel != null) hudPanel.SetActive(true);
-        Time.timeScale = 1f; // Время идет обычным шагом
+        Time.timeScale = 1f;
     }
 
     // Кнопка PAUSE: Нажимаем || в HUD
     public void PauseGame()
     {
         if (pausePanel != null) pausePanel.SetActive(true);
-        Time.timeScale = 0f; // Полная остановка времени в игре!
+        Time.timeScale = 0f; // Остановка времени
     }
 
-    // Кнопка RESUME: Возобновляем игру из паузы
+    // Кнопка RESUME: Продолжить игру
     public void ResumeGame()
     {
         if (pausePanel != null) pausePanel.SetActive(false);
-        Time.timeScale = 1f; // Время снова идет
+        Time.timeScale = 1f;
     }
 
-    // Кнопка RESTART: Перезагружаем текущую сцену
+    // Кнопка RESTART: Перезагрузка сцены
     public void RestartGame()
     {
         Time.timeScale = 1f;
@@ -40,13 +55,10 @@ public class UIManager : MonoBehaviour
     // Кнопка MAIN MENU: Возврат в главное меню
     public void LoadMenu()
     {
-        Time.timeScale = 1f;
-        if (pausePanel != null) pausePanel.SetActive(false);
-        if (hudPanel != null) hudPanel.SetActive(false);
-        if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+        ShowMainMenu();
     }
 
-    // Кнопка QUIT: Выход из приложения
+    // Кнопка QUIT: Выход
     public void QuitGame()
     {
         Application.Quit();
