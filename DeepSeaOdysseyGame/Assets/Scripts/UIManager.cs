@@ -36,6 +36,7 @@ public class UIManager : MonoBehaviour
     {
         if (pausePanel != null) pausePanel.SetActive(true);
         Time.timeScale = 0f; // Остановка времени
+        if (AudioManager.Instance != null) AudioManager.Instance.SetPausedAudio(true);
     }
 
     // Кнопка RESUME: Продолжить игру
@@ -43,6 +44,7 @@ public class UIManager : MonoBehaviour
     {
         if (pausePanel != null) pausePanel.SetActive(false);
         Time.timeScale = 1f;
+        if (AudioManager.Instance != null) AudioManager.Instance.SetPausedAudio(false);
     }
 
     // Кнопка RESTART: Перезагрузка сцены

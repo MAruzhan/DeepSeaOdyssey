@@ -39,6 +39,7 @@ public class ShooterEnemy2D : MonoBehaviour
         isAttacking = true;
 
         currentState = State.Aiming;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayWindUp();
         if (spriteRenderer != null) spriteRenderer.color = Color.red;
         yield return new WaitForSeconds(stats.windUpTime);
 
@@ -50,6 +51,7 @@ public class ShooterEnemy2D : MonoBehaviour
             Vector2 dir = (player.position - transform.position).normalized;
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             Instantiate(projectilePrefab, transform.position, Quaternion.Euler(0, 0, angle));
+            if (AudioManager.Instance != null) AudioManager.Instance.PlayHit();
         }
 
         yield return new WaitForSeconds(stats.cooldownTime);

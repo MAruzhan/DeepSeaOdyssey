@@ -89,6 +89,7 @@ public class PatrolEnemy2D : MonoBehaviour
 
     void AttackLogic()
     {
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayHit();
         Debug.Log("Patroller наносит урон: " + stats.damage);
         currentState = State.Patrol;
     }
