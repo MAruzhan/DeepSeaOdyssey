@@ -38,6 +38,7 @@ public class ChargerEnemy2D : MonoBehaviour
         isCharging = true;
 
         currentState = State.WindUp;
+        if (AudioManager.Instance != null) AudioManager.Instance.PlayWindUp();
         chargeDirection = (player.position - transform.position).normalized;
         if (spriteRenderer != null) spriteRenderer.color = Color.yellow;
         yield return new WaitForSeconds(stats.windUpTime);

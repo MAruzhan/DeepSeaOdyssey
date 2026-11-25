@@ -6,10 +6,11 @@ using UnityEngine;
 [Serializable]
 public class GameSaveData
 {
-    public int version = 1;
+    public int version = 2;
     public int bestScore = 0;
-    public List<int> unlockedLevels = new List<int> { 1 }; // По умолчанию открыт 1-й уровень
+    public List<int> unlockedLevels = new List<int> { 1 };
     public float musicVolume = 0.8f;
+    public float sfxVolume = 0.8f;
 }
 
 public class SaveManager : MonoBehaviour
